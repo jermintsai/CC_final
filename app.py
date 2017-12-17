@@ -13,10 +13,10 @@ import dash_html_components as html
 import pandas as pd
 import plotly.graph_objs as go
 
-euro_data = pd.read_csv("nama_10_gdp_1_Data.csv")
-available_indicators = euro_data['NA_ITEM'].unique()
-available_countries = euro_data['GEO'].unique()
-print(euro_data.head())
+eudata = pd.read_csv("nama_10_gdp_1_Data.csv")
+available_indicators = eudata['NA_ITEM'].unique()
+available_countries = eudata['GEO'].unique()
+print(eudata.head())
 
 
 # In[ ]:
@@ -25,8 +25,7 @@ print(euro_data.head())
 #Dashboard1
 app = dash.Dash(__name__)
 
-
-euro_data_alpha = euro_data[euro_data['UNIT'] == 'Current prices, million euro']
+eudata1 = eudata[eudata['UNIT'] == 'Current prices, million euro']
 app.layout = html.Div([  
     html.Div([
         
@@ -35,29 +34,27 @@ app.layout = html.Div([
 
                 id='xaxis-column1',
                 options=[{'label': i, 'value': i} for i in available_indicators]
-                #value='GDP'
             )
         ],
-        style={'width': '50%', 'display': 'inline-block'}),
+        style={'width': '60%', 'display': 'inline-block'}),
         html.Div([
             dcc.Dropdown( 
                 id='yaxis-column1',
-                options=[{'label': i, 'value': i} for i in available_indicators],
-                value='Salaries'
+                options=[{'label': i, 'value': i} for i in available_indicators]
             )
-        ],style={'width': '50%', 'float': 'right', 'display': 'inline-block'})
+        ],style={'width': '60%', 'float': 'right', 'display': 'inline-block'})
     ]),
     
-  dcc.Graph(id='FirstGraph'),
+  dcc.Graph(id='Graph1'),
 
     
     html.Div(dcc.Slider( 
         id='year--slider',
-        min=euro_data['TIME'].min(),
-        max=euro_data['TIME'].max(),
-        value=euro_data['TIME'].max(),
+        min=eudata['TIME'].min(),
+        max=eudata['TIME'].max(),
+        value=eudata['TIME'].max(),
         step=None,
-        marks={str(time): str(time) for time in euro_data['TIME'].unique()},
+        marks={str(time): str(time) for time in eudata['TIME'].unique()},
     
     ), style={'marginRight': 50, 'marginLeft': 110},),
     
@@ -66,9 +63,8 @@ app.layout = html.Div([
         
         html.Div([
             dcc.Dropdown( 
-                id='country_selection',
-                options=[{'label': i, 'value': i} for i in available_indicators],
-                value='Spain'
+                id='xaxis-column2',
+                options=[{'label': i, 'value': i} for i in available_indicators]
             )
         ],
         style={'width': '30%', 'marginTop': 40, 'display': 'inline-block'}),
@@ -76,19 +72,19 @@ app.layout = html.Div([
         html.Div([
             dcc.Dropdown( 
                 id='yaxis-column2',
-                options=[{'label': i, 'value': i} for i in available_indicators],
+                options=[{'label': i, 'value': i} for i in available_countries],
                 value= "European Union (28 countries)"
                 
             )
         ],style={'width': '30%', 'marginTop': 40, 'float': 'right', 'display': 'inline-block'})
      ]),
-     dcc.Graph(id='indicator-graphic-lc'),
+     dcc.Graph(id='Graph2'),
 
 ])
 
 #App callback for Dashboard1
 @app.callback(
-    dash.dependencies.Output('FirstGraph', 'figure'),
+    dash.dependencies.Output('Graph1', 'figure'),
     [dash.dependencies.Input('xaxis-column1', 'value'),
      dash.dependencies.Input('yaxis-column1', 'value'),
      dash.dependencies.Input('year--slider', 'value')])
@@ -96,17 +92,17 @@ app.layout = html.Div([
 def update_graph(xaxis_column_name, yaxis_column_name,
                  year_value):
 
-    euro_data_yearly = euro_data[euro_data['TIME'] == year_value]
+    eudata_year = eudata[eudata['TIME'] == year_value]
     return {
         'data': [go.Scatter(
-            x=euro_data_yearly[euro_data_yearly['NA_ITEM'] == xaxis_column_name]['Value'],
-            y=euro_data_yearly[euro_data_yearly['NA_ITEM'] == yaxis_column_name]['Value'],
-            text=euro_data_yearly[euro_data_yearly['NA_ITEM'] == yaxis_column_name]['GEO'],
+            x=eudata_year[eudata_year['NA_ITEM'] == xaxis_column_name]['Value'],
+            y=eudata_year[eudata_year['NA_ITEM'] == yaxis_column_name]['Value'],
+            text=eudata_year[eudata_year['NA_ITEM'] == yaxis_column_name]['GEO'],
             mode='markers',
             marker={
                 'size': 15,
                 'opacity': 0.5,
-                'line': {'width': 0.5, 'color': 'white'}
+                'line': {'width': 0.6, 'color': 'white'}
             }
         )],
         'layout': go.Layout(
@@ -125,19 +121,19 @@ def update_graph(xaxis_column_name, yaxis_column_name,
 
 #App callback for Dashboard2
 @app.callback(
-    dash.dependencies.Output('SecondGraph', 'figure'),
+    dash.dependencies.Output('Graph2', 'figure'),
     [dash.dependencies.Input('xaxis-column2', 'value'),
      dash.dependencies.Input('yaxis-column2', 'value')])
 
 def update_graph(xaxis_column_name, yaxis_column_name):
    
-    euro_data_yearly = euro_data_alpha[euro_data_alpha['GEO'] == yaxis_column_name]
+    eudata_year = eudata1[eudata1['GEO'] == yaxis_column_name]
 
 
     return {
         'data': [go.Scatter(
-            x=euro_data_yearly['TIME'].unique(),
-            y=euro_data_yearly[euro_data_yearly['NA_ITEM'] == xaxis_column_name]['Value'],
+            x=eudata_year['TIME'].unique(),
+            y=eudata_year[eudata_year['NA_ITEM'] == xaxis_column_name]['Value'],
             mode='lines',
             marker={
                 'size': 15,
@@ -147,11 +143,11 @@ def update_graph(xaxis_column_name, yaxis_column_name):
         )],
         'layout': go.Layout(
             xaxis={
-                'title': xaxis_column_name,
+                'title': 'Time',
                 'type': 'linear'
             },
             yaxis={
-                'title': yaxis_column_name,
+                'title': xaxis_column_name,
                 'type': 'linear'
             },
             margin={'l': 100, 'b': 50, 't': 25, 'r': 0},
