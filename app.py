@@ -42,7 +42,7 @@ app.layout = html.Div([
                 id='yaxis-column1',
                 options=[{'label': i, 'value': i} for i in available_indicators]
             )
-        ],style={'width': '60%', 'float': 'right', 'display': 'inline-block'})
+        ],style={'width': '40%', 'float': 'right', 'display': 'inline-block'})
     ]),
     
   dcc.Graph(id='Graph1'),
@@ -102,7 +102,7 @@ def update_graph(xaxis_column_name, yaxis_column_name,
             marker={
                 'size': 15,
                 'opacity': 0.5,
-                'line': {'width': 0.6, 'color': 'white'}
+                'line': {'width': 0.4, 'color': 'white'}
             }
         )],
         'layout': go.Layout(
